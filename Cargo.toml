@@ -7,7 +7,7 @@ default-members = [
 ]
 exclude = [
     "projects/.DS_Store",
-    "projects/ascii-art-wl",
+    "projects/ascii-art-wolfram",
 ]
 
 [profile.release]

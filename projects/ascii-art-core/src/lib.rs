@@ -1,24 +1,13 @@
-mod detectors;
-mod errors;
 mod renderer;
-
-pub use detectors::{ColorDetector, EdgeDetector};
-pub use errors::{Error, LowPolyResult};
-pub use rand::{rngs::StdRng, thread_rng, SeedableRng};
+pub use crate::renderer::AsciiData;
 
 #[derive(Debug, Clone)]
-pub struct LowPoly {
-    edge_detector: EdgeDetector,
-    color_detector: ColorDetector,
-    rng: StdRng,
+pub struct AsciiArt {
+    pixel_aligned: bool,
 }
 
-impl Default for LowPoly {
+impl Default for AsciiArt {
     fn default() -> Self {
-        Self {
-            edge_detector: EdgeDetector::Random,
-            color_detector: ColorDetector::ThreePoint,
-            rng: StdRng::from_rng(thread_rng()).unwrap(),
-        }
+        Self { pixel_aligned: false }
     }
 }

@@ -14,8 +14,6 @@ pub enum Graphics<T> {
 
 impl Graphics<T> {
     pub fn get_point<T>(&self) {
-        match self {
-
-        }
+        match self {}
     }
 }

@@ -51,8 +51,5 @@ impl LowPoly {
 
     pub fn as_image(&self) -> LowPolyResult<()> {
         let img = self.cache.as_image(self.output)?;
-
-
-
     }
 }

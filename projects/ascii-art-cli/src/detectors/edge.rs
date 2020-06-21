@@ -1,9 +1,10 @@
-use crate::{DynamicImage, LowPolyResult};
+use crate::{
+    detectors::{Graphics, Polygon},
+    DynamicImage, Error, LowPolyResult,
+};
 use image::GrayImage;
 use imageproc::edges::canny;
 use triangulation::{Delaunay, Point};
-use crate::Error;
-use crate::detectors::{Polygon, Graphics};
 
 const WHITE: [u8; 1] = [255u8; 1];
 
@@ -52,27 +53,17 @@ impl PolyDetector {
         }
     }
 
-    pub fn detect_polys_and_edges(&self, points: &[(f32, f32)])-> LowPolyResult<(Vec<Graphics<f32>>,Vec<Graphics<f32>>)> {
+    pub fn detect_polys_and_edges(&self, points: &[(f32, f32)]) -> LowPolyResult<(Vec<Graphics<f32>>, Vec<Graphics<f32>>)> {
         match self {
-            PolyDetector::Random => {unimplemented!()}
-            PolyDetector::Sobel { .. } => {unimplemented!()}
+            PolyDetector::Random => unimplemented!(),
+            PolyDetector::Sobel { .. } => unimplemented!(),
             PolyDetector::Canny { .. } => {
                 let ts = delaunay(points)?;
-                for e in ts.edges() {
-
-                }
-                for p in ts.edges() {
-
-                }
-
+                for e in ts.edges() {}
+                for p in ts.edges() {}
             }
         }
-
-
-
     }
-
-
 
     pub fn points_from_gray(&self, gray: &GrayImage) -> Vec<(f32, f32)> {
         let mut points = Vec::with_capacity(gray.len());
@@ -105,20 +96,17 @@ impl PolyDetector {
     }
 }
 
-
 fn distance(a: &(f32, f32), b: &(f32, f32)) -> f32 {
     let dx = (a.0 - b.0).powi(2);
     let dy = (a.1 - b.1).powi(2);
     return (dx + dy).sqrt();
 }
 
-
-
 pub fn delaunay(points: &[(f32, f32)]) -> LowPolyResult<Delaunay> {
     let points: Vec<_> = points.iter().map(|(x, y)| Point::new(*x, *y)).collect();
     let triangulation = match Delaunay::new(&points) {
-        None => {return Err(Error::NoneError)}
-        Some(s) => {s}
+        None => return Err(Error::NoneError),
+        Some(s) => s,
     };
     Ok(triangulation)
 }
