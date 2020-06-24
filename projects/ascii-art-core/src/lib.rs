@@ -1,5 +1,12 @@
+mod canvas;
+mod errors;
 mod renderer;
-pub use crate::renderer::AsciiData;
+
+pub use crate::{
+    canvas::Canvas,
+    errors::{AsciiArtError, Result},
+    renderer::{AsciiData, AsciiSet},
+};
 
 #[derive(Debug, Clone)]
 pub struct AsciiArt {

@@ -15,6 +15,7 @@ pix = "0.13"
 imageproc = "0.21"
 font-kit = "0.10"
 fontdue = "*"
+itertools = "*"
 
 [dev-dependencies]
 

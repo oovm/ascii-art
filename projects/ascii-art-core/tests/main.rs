@@ -1,4 +1,4 @@
-use ascii_art_core::AsciiData;
+use ascii_art_core::{AsciiData, AsciiSet};
 use fontdue::{Font, FontSettings};
 use image::{DynamicImage, ImageFormat};
 
@@ -13,9 +13,10 @@ fn main() {
     let img = DynamicImage::ImageLuma8(char_data.image);
     // let img = DynamicImage::new_luma8(metrics.width as u32,metrics.height as u32);
 
-    img.save_with_format("test.png", ImageFormat::Png);
-
-    let (metrics, bitmap) = font.rasterize('a', 17.0);
-    println!("{:#?}", metrics);
-    println!("{:#?}", bitmap.len());
+    img.save_with_format("test.png", ImageFormat::Png).unwrap();
+    let mut set = AsciiSet::default();
+    set.load_string(&font, "abcdefg");
+    println!("{:#?}", set);
+    println!("{:#?}", set.nearest(91));
+    println!("{:#?}", set.nearest(96));
 }

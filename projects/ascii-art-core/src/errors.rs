@@ -1,4 +1,4 @@
 #[derive(Debug, Clone)]
-pub enum Error {}
+pub enum AsciiArtError {}
 
-pub type LowPolyResult<T> = std::result::Result<T, Error>;
+pub type Result<T> = std::result::Result<T, AsciiArtError>;
