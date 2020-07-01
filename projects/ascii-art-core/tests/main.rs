@@ -1,5 +1,8 @@
 use ascii_art_core::{AsciiData, AsciiSet};
-use fontdue::{Font, FontSettings};
+use fontdue::{
+    layout::{CoordinateSystem, Layout, LayoutSettings, TextStyle},
+    Font, FontSettings,
+};
 use image::{DynamicImage, ImageFormat};
 
 #[test]
@@ -19,4 +22,14 @@ fn main() {
     println!("{:#?}", set);
     println!("{:#?}", set.nearest(91));
     println!("{:#?}", set.nearest(96));
+
+    let fonts = &[font];
+    let mut layout = Layout::new(CoordinateSystem::PositiveYUp);
+    // By default, layout is initialized with the default layout settings. This call is redundant, but
+    // demonstrates setting the value with your custom settings.
+    layout.reset(&LayoutSettings { ..LayoutSettings::default() });
+    layout.append(fonts, &TextStyle::new("Hello ", 35.0, 0));
+    layout.append(fonts, &TextStyle::new("world!", 40.0, 0));
+    // Prints the layout for "Hello world!"
+    println!("{:#?}", layout.glyphs());
 }

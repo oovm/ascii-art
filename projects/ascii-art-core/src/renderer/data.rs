@@ -68,23 +68,27 @@ impl AsciiSet {
             .map(|c| AsciiData::rasterize(font, *c, self.font_size))
             .sorted_by(|a, b| PartialOrd::partial_cmp(&a.mean, &b.mean).unwrap_or(Ordering::Equal))
             .collect();
+        if let Some(s) = font.horizontal_line_metrics(self.font_size) {
+            self.font_line = s.new_line_size
+        }
     }
+
     pub fn nearest(&self, pixel: u8) -> AsciiData {
         assert!(!self.images.is_empty());
-        let out = if self.images.len() == 1 {
-            unsafe { self.images.get_unchecked(0) }
-        }
-        else {
-            let mut min_delta = 255.0;
-            let mut result = self.images.first().unwrap();
-            for item in self.images.iter() {
-                let mid = (pixel as f32 - item.mean).abs();
-                if mid < min_delta {
-                    min_delta = mid;
-                    result = item
+        let out = match self.images.len() {
+            1 => unsafe { self.images.get_unchecked(0) },
+            _ => {
+                let mut min_delta = 255.0;
+                let mut result = self.images.first().unwrap();
+                for item in self.images.iter() {
+                    let mid = (pixel as f32 - item.mean).abs();
+                    if mid < min_delta {
+                        min_delta = mid;
+                        result = item
+                    }
                 }
+                result
             }
-            result
         };
         return out.to_owned();
     }
