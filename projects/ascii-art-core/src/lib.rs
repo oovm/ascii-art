@@ -12,10 +12,10 @@ pub use image::{Luma, Rgb};
 
 #[derive(Debug, Clone)]
 pub struct AsciiArt {
-    pixel_aligned: bool,
-    font_size: f32,
-    char_set: AsciiSet,
-    color_mode: AsciiColorMode,
+    pub pixel_aligned: bool,
+    pub font_size: f32,
+    pub char_set: AsciiSet,
+    pub color_mode: AsciiColorMode,
 }
 
 impl Default for AsciiArt {

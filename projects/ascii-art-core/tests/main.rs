@@ -1,9 +1,14 @@
-use ascii_art_core::{AsciiData, AsciiSet};
+use ascii_art_core::{AsciiData, AsciiSet, AsciiArt};
 use fontdue::{
     layout::{CoordinateSystem, Layout, LayoutSettings, TextStyle},
     Font, FontSettings,
 };
-use image::{DynamicImage, ImageFormat};
+use image::{DynamicImage, ImageFormat, open};
+
+#[test]
+fn ready(){
+    println!("it works!")
+}
 
 #[test]
 fn main() {
@@ -32,4 +37,19 @@ fn main() {
     layout.append(fonts, &TextStyle::new("world!", 40.0, 0));
     // Prints the layout for "Hello world!"
     println!("{:#?}", layout.glyphs());
+}
+
+#[test]
+fn svg() {
+    // Parse it into the font type.
+    let font = Font::from_bytes(include_bytes!("consola.ttf") as &[u8], FontSettings::default()).unwrap();
+    let mut ctx = AsciiArt::default();
+    ctx.pixel_aligned = true;
+    ctx.font_size = 9.0;
+    ctx.build_font_cache(&font, " abcdefg");
+    println!("{:#?}",ctx.char_set.images);
+    let img = DynamicImage::ImageRgba8(open("tests/wolfram-wolf.png").unwrap().into_rgba());
+    let out = ctx.render(img);
+    println!("{}",out.data.len());
+    out.save_svg("tests/wolfram-wolf.svg").unwrap()
 }

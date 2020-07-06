@@ -6,6 +6,7 @@ use std::{
     collections::BTreeSet,
     fmt::{self, Debug, Formatter},
     iter::FromIterator,
+    rc::Rc,
     str::Chars,
 };
 
@@ -14,11 +15,12 @@ pub struct AsciiSet {
     pub font_size: f32,
     pub font_space: f32,
     pub font_line: f32,
-    pub images: Vec<AsciiData>,
+    pub images: Vec<Rc<AsciiData>>,
 }
 
 #[derive(Clone)]
 pub struct AsciiData {
+    pub char: char,
     pub height: usize,
     pub width: usize,
     pub image: GrayImage,
@@ -34,9 +36,13 @@ impl Default for AsciiSet {
 impl Debug for AsciiData {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self {
-            AsciiData { height, width, image: _, mean } => {
-                f.debug_struct("AsciiData").field("height", height).field("width", width).field("mean", mean).finish()
-            }
+            AsciiData { char, height, width, image: _, mean } => f
+                .debug_struct("AsciiData")
+                .field("char", char)
+                .field("height", height)
+                .field("width", width)
+                .field("mean", mean)
+                .finish(),
         }
     }
 }
@@ -47,7 +53,7 @@ impl AsciiData {
         let (metrics, bitmap) = font.rasterize(c, px);
         let mean = bitmap.iter().map(|&u| u as f32).sum::<f32>() / bitmap.len() as f32;
         let grey = GrayImage::from_raw(metrics.width as u32, metrics.height as u32, bitmap).unwrap();
-        Self { height: metrics.height, width: metrics.width, image: grey, mean }
+        Self { char: c, height: metrics.height, width: metrics.width, image: grey, mean }
     }
 }
 
@@ -67,13 +73,14 @@ impl AsciiSet {
             .iter()
             .map(|c| AsciiData::rasterize(font, *c, self.font_size))
             .sorted_by(|a, b| PartialOrd::partial_cmp(&a.mean, &b.mean).unwrap_or(Ordering::Equal))
+            .map(|o| Rc::new(o))
             .collect();
         if let Some(s) = font.horizontal_line_metrics(self.font_size) {
             self.font_line = s.new_line_size
         }
     }
 
-    pub fn nearest(&self, pixel: u8) -> AsciiData {
+    pub fn nearest(&self, pixel: u8) -> Rc<AsciiData> {
         assert!(!self.images.is_empty());
         let out = match self.images.len() {
             1 => unsafe { self.images.get_unchecked(0) },
@@ -90,6 +97,6 @@ impl AsciiSet {
                 result
             }
         };
-        return out.to_owned();
+        return Rc::clone(out);
     }
 }
