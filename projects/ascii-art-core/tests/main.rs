@@ -1,12 +1,12 @@
-use ascii_art_core::{AsciiData, AsciiSet, AsciiArt};
+use ascii_art_core::{AsciiArt, AsciiData, AsciiSet};
 use fontdue::{
     layout::{CoordinateSystem, Layout, LayoutSettings, TextStyle},
     Font, FontSettings,
 };
-use image::{DynamicImage, ImageFormat, open};
+use image::{open, DynamicImage, ImageFormat};
 
 #[test]
-fn ready(){
+fn ready() {
     println!("it works!")
 }
 
@@ -47,9 +47,9 @@ fn svg() {
     ctx.pixel_aligned = true;
     ctx.font_size = 9.0;
     ctx.build_font_cache(&font, " abcdefg");
-    println!("{:#?}",ctx.char_set.images);
+    println!("{:#?}", ctx.char_set.images);
     let img = DynamicImage::ImageRgba8(open("tests/wolfram-wolf.png").unwrap().into_rgba());
     let out = ctx.render(img);
-    println!("{}",out.data.len());
+    println!("{}", out.data.len());
     out.save_svg("tests/wolfram-wolf.svg").unwrap()
 }

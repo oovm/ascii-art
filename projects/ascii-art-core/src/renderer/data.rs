@@ -51,7 +51,10 @@ impl AsciiData {
     pub fn rasterize(font: &Font, c: char, px: f32) -> Self {
         assert!(px > 0.0);
         let (metrics, bitmap) = font.rasterize(c, px);
-        let mean = bitmap.iter().map(|&u| u as f32).sum::<f32>() / bitmap.len() as f32;
+        let mean = match bitmap.is_empty() {
+            true => 0.0, // avoid NaN
+            false => bitmap.iter().map(|&u| u as f32).sum::<f32>() / bitmap.len() as f32,
+        };
         let grey = GrayImage::from_raw(metrics.width as u32, metrics.height as u32, bitmap).unwrap();
         Self { char: c, height: metrics.height, width: metrics.width, image: grey, mean }
     }

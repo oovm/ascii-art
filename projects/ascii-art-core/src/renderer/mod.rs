@@ -2,8 +2,8 @@ mod data;
 
 use crate::{canvas::AsciiCanvasItem, AsciiArt, AsciiCanvas};
 pub use data::{AsciiData, AsciiSet};
-use image::{imageops::FilterType, DynamicImage, GenericImageView, Pixel};
 use fontdue::Font;
+use image::{imageops::FilterType, DynamicImage, GenericImageView, Pixel};
 
 #[derive(Copy, Clone, Debug)]
 pub enum AsciiColorMode {
@@ -34,18 +34,29 @@ impl AsciiArt {
         }
     }
     unsafe fn render_grid(&self, img: DynamicImage) -> AsciiCanvas {
-        println!("{}",self.font_size);
         let w = img.width() as f32 / self.font_size;
         let h = img.height() as f32 / self.font_size;
-        println!("{} {}",w, h);
         let color_map = img.resize_exact(w.floor() as u32, h.floor() as u32, FilterType::CatmullRom).into_rgb();
         let mut items = vec![];
         for (x, y, rgb) in color_map.enumerate_pixels() {
             let gray = rgb.to_luma();
-            let data = self.char_set.nearest(*gray.0.get_unchecked(0));
-            items.push(AsciiCanvasItem { x: self.font_size * (x as f32 + 1.0), y: self.font_size * (y as f32 + 1.0), color: rgb.to_owned(), data })
+            let data = match self.reverse_color {
+                true => self.char_set.nearest(*gray.0.get_unchecked(0)),
+                false => self.char_set.nearest(255 - *gray.0.get_unchecked(0)),
+            };
+            items.push(AsciiCanvasItem {
+                x: self.font_size * (x as f32 + 1.0),
+                y: self.font_size * (y as f32 + 1.0),
+                color: rgb.to_owned(),
+                data,
+            })
         }
-        AsciiCanvas { data: items, font_size: self.font_size, width: w.ceil() * self.font_size, height: h.ceil() * self.font_size}
+        AsciiCanvas {
+            data: items,
+            font_size: self.font_size,
+            width: w.ceil() * self.font_size,
+            height: h.ceil() * self.font_size,
+        }
     }
     fn render_mono(&self) -> AsciiCanvas {
         unimplemented!()
