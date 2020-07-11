@@ -9,6 +9,7 @@ pub use crate::{
     renderer::{AsciiData, AsciiSet},
 };
 pub use image::{Luma, Rgb};
+use fontdue::Font;
 
 #[derive(Debug, Clone)]
 pub struct AsciiArt {
@@ -29,4 +30,14 @@ impl Default for AsciiArt {
             color_mode: Default::default(),
         }
     }
+}
+
+pub fn get_ascii_art_set(name: &str, font: &Font) -> Option<AsciiArt> {
+    let s = match name.to_lowercase().as_str() {
+        "ascii" => "a",
+        _ => return None
+    };
+    let mut ctx = AsciiArt::default();
+    ctx.build_font_cache(font, s);
+    Some(ctx)
 }

@@ -3,7 +3,7 @@ use fontdue::{
     layout::{CoordinateSystem, Layout, LayoutSettings, TextStyle},
     Font, FontSettings,
 };
-use image::{open, DynamicImage, ImageFormat};
+use image::{DynamicImage, ImageFormat};
 
 #[test]
 fn ready() {
@@ -47,9 +47,6 @@ fn svg() {
     ctx.pixel_aligned = true;
     ctx.font_size = 9.0;
     ctx.build_font_cache(&font, " abcdefg");
-    println!("{:#?}", ctx.char_set.images);
-    let img = DynamicImage::ImageRgba8(open("tests/wolfram-wolf.png").unwrap().into_rgba());
-    let out = ctx.render(img);
-    println!("{}", out.data.len());
+    let out = ctx.render_path("tests/wolfram-wolf.png").unwrap();
     out.save_svg("tests/wolfram-wolf.svg").unwrap()
 }

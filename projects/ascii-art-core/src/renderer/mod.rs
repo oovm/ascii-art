@@ -1,9 +1,12 @@
 mod data;
-
+use crate::Result;
 use crate::{canvas::AsciiCanvasItem, AsciiArt, AsciiCanvas};
 pub use data::{AsciiData, AsciiSet};
 use fontdue::Font;
 use image::{imageops::FilterType, DynamicImage, GenericImageView, Pixel};
+use image::io::Reader;
+use std::path::Path;
+use std::io::Cursor;
 
 #[derive(Copy, Clone, Debug)]
 pub enum AsciiColorMode {
@@ -25,6 +28,15 @@ impl AsciiArt {
 }
 
 impl AsciiArt {
+    pub fn render_path(&self, path: impl AsRef<Path>) -> Result<AsciiCanvas> {
+        let img = Reader::open(path)?.decode()?;
+        Ok(self.render(img))
+    }
+    pub fn render_bytes(&self, bytes: &[u8] ) -> Result<AsciiCanvas> {
+        let img = Reader::new(Cursor::new(bytes)).decode()?;
+        Ok(self.render(img))
+    }
+
     pub fn render(&self, img: DynamicImage) -> AsciiCanvas {
         unsafe {
             match self.pixel_aligned {
