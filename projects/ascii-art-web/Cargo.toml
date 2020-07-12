@@ -3,9 +3,8 @@ name = "qr-image-web"
 publish = false
 version = "0.1.0"
 authors = ["Aster <192607617@qq.com>"]
-description = "..."
-repository = "..."
-readme = "Readme.md"
+repository = "https://github.com/GalAster/ascii-art"
+readme = "../../readme.md"
 license = "MPL-2.0"
 edition = "2018"
 
