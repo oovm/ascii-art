@@ -3,6 +3,8 @@ pub use errors::{BrailleArtError, Result};
 
 mod renderer;
 mod canvas;
+
+pub use canvas::BrailleCanvas;
 pub use renderer::{BrailleArtMode};
 
 /// UTF8 of first (empty) braille character

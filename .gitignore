@@ -8,7 +8,9 @@
 *.iml
 
 # Rust
-target/**/*
+target/
+dist/
+
 Cargo.lock
 *.nb
 *.ttf

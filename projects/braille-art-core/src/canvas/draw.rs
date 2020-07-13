@@ -1,7 +1,7 @@
 use super::*;
 use itertools::Itertools;
 
-impl AsciiCanvas {
+impl BrailleCanvas {
     pub fn draw_svg(&self) -> String {
         let texts = self.data.iter().map(|e| e.as_svg()).join("");
         format!(
@@ -24,7 +24,7 @@ impl AsciiCanvasItem {
     }
 }
 
-impl AsciiCanvas {
+impl BrailleCanvas {
     pub fn draw_image(&self) {}
     pub fn draw_canvas(&self) {}
 }
