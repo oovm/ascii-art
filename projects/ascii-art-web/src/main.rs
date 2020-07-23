@@ -1,127 +1,140 @@
-#![recursion_limit="1024"]
+#![recursion_limit = "1024"]
+mod braille_view;
+mod global;
 
-use add_client::AddClientForm;
-use serde::{Deserialize, Serialize};
-use yew::format::Json;
-use yew::services::storage::Area;
-use yew::services::{DialogService, StorageService};
-use yew::{html, Component, ComponentLink, Html, ShouldRender};
+use crate::global::{GlobalSettings, Scene};
+use yew::{
+    format::Json,
+    html,
+    services::{storage::Area, StorageService},
+    Component, ComponentLink, Html, ShouldRender,
+};
 
-mod add_client;
-
-#[derive(Serialize, Deserialize, Clone, Debug, Default)]
-pub struct Client {
-    pub first_name: String,
-    pub last_name: String,
-    pub description: String,
-}
-
-impl Client {
-    pub fn render(&self) -> Html {
-        html! {
-            <div class="client" style="margin-bottom: 50px">
-                <p>{ format!("First Name: {}", self.first_name) }</p>
-                <p>{ format!("Last Name: {}", self.last_name) }</p>
-                <p>{ "Description:" }</p>
-                { &self.description }
-            </div>
-        }
-    }
-}
-
-/// storage key for the clients
-const KEY: &str = "yew.crm.clients";
+const KEY: &str = "ascii-art";
 
 #[derive(Debug)]
-pub enum Scene {
-    ClientsList,
-    NewClientForm,
-    Settings,
-}
-
-#[derive(Debug)]
-pub enum Msg {
+pub enum Event {
     SwitchTo(Scene),
-    AddClient(Client),
-    ClearClients,
 }
 
 pub struct Model {
     link: ComponentLink<Self>,
     storage: StorageService,
-    clients: Vec<Client>,
-    scene: Scene,
+    state: GlobalSettings,
 }
 
 impl Component for Model {
-    type Message = Msg;
+    type Message = Event;
     type Properties = ();
 
     fn create(_props: Self::Properties, link: ComponentLink<Self>) -> Self {
         let storage = StorageService::new(Area::Local).expect("storage was disabled by the user");
-        let Json(clients) = storage.restore(KEY);
-        let clients = clients.ok().unwrap_or_else(Vec::new);
-        Self {
-            link,
-            storage,
-            clients,
-            scene: Scene::ClientsList,
-        }
+        let state = match storage.restore(KEY) {
+            Json(Ok(state)) => state,
+            _ => GlobalSettings::default(),
+        };
+        Self { link, storage, state }
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Msg::SwitchTo(scene) => {
-                self.scene = scene;
-                true
-            }
-            Msg::AddClient(client) => {
-                self.clients.push(client);
-                self.storage.store(KEY, Json(&self.clients));
-                // we only need to re-render if we're currently displaying the clients
-                matches!(self.scene, Scene::ClientsList)
-            }
-            Msg::ClearClients => {
-                if DialogService::confirm("Do you really want to clear the data?") {
-                    self.clients.clear();
-                    self.storage.remove(KEY);
-                    true
-                } else {
-                    false
-                }
+            Event::SwitchTo(scene) => {
+                self.state.scene = scene;
+                self.storage.store(KEY, Json(&self.state))
             }
         }
+        true
     }
 
-    fn change(&mut self, _props: Self::Properties) -> ShouldRender {
+    fn change(&mut self, _: Self::Properties) -> ShouldRender {
         false
     }
 
     fn view(&self) -> Html {
-        match self.scene {
-            Scene::ClientsList => html! {
-                <div class="crm">
-                    <h1>{"List of clients"}</h1>
-                    <div class="clients">
-                        { for self.clients.iter().map(Client::render) }
+        match self.state.scene {
+            Scene::AsciiArt => html! {
+            <>
+                {self.navbar_view()}
+            </>
+            },
+            Scene::BrailleArt => html! {
+            <>
+                {self.navbar_view()}
+                {self.braille_view()}
+            </>
+            },
+            Scene::EmojiArt => html! {
+            <>
+                {self.navbar_view()}
+            </>
+            },
+        }
+    }
+}
+
+impl Model {
+    pub fn navbar_view(&self) -> Html {
+        html! {
+        <nav class="navbar ">
+            <div class="container">
+                <div class="navbar-brand">
+                    <a class="navbar-item">
+                        <img src="https://bulma.io/images/bulma-type-white.png" alt="Logo"/>
+                    </a>
+                    <span class="navbar-burger burger">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </span>
+                </div>
+                <div class="navbar-menu">
+                    <div class="navbar-end">
+                    {self.switch_to_ascii()}
+                    {self.switch_to_braille_art()}
+                    {self.switch_to_emoji()}
                     </div>
-                    <button onclick=self.link.callback(|_| Msg::SwitchTo(Scene::NewClientForm))>{ "Add New" }</button>
-                    <button onclick=self.link.callback(|_| Msg::SwitchTo(Scene::Settings))>{ "Settings" }</button>
                 </div>
-            },
-            Scene::NewClientForm => html! {
-                <div class="crm">
-                    <h1>{"Add a new client"}</h1>
-                    <AddClientForm on_add=self.link.callback(Msg::AddClient) on_abort=self.link.callback(|_| Msg::SwitchTo(Scene::ClientsList)) />
-                </div>
-            },
-            Scene::Settings => html! {
-                <div>
-                    <h1>{"Settings"}</h1>
-                    <button onclick=self.link.callback(|_| Msg::ClearClients)>{ "Remove all clients" }</button>
-                    <button onclick=self.link.callback(|_| Msg::SwitchTo(Scene::ClientsList))>{ "Go Back" }</button>
-                </div>
-            },
+            </div>
+        </nav>
+        }
+    }
+    fn switch_to_ascii(&self) -> Html {
+        let class = match self.state.scene {
+            Scene::AsciiArt => "navbar-item is-active",
+            _ => "navbar-item",
+        };
+        html! {
+            <a class=class id="title"
+                onclick=self.link.callback(|_| Event::SwitchTo(Scene::AsciiArt))
+            >
+            {"AsciiArt"}
+            </a>
+        }
+    }
+    fn switch_to_emoji(&self) -> Html {
+        let class = match self.state.scene {
+            Scene::EmojiArt => "navbar-item is-active",
+            _ => "navbar-item",
+        };
+        html! {
+            <a class=class id="title"
+                onclick=self.link.callback(|_| Event::SwitchTo(Scene::EmojiArt))
+            >
+            {"EmojiArt"}
+            </a>
+        }
+    }
+    fn switch_to_braille_art(&self) -> Html {
+        let class = match self.state.scene {
+            Scene::BrailleArt => "navbar-item is-active",
+            _ => "navbar-item",
+        };
+        html! {
+            <a class=class id="title"
+                onclick=self.link.callback(|_| Event::SwitchTo(Scene::BrailleArt))
+            >
+            {"braille_view"}
+            </a>
         }
     }
 }

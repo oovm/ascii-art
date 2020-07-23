@@ -1,8 +1,7 @@
+use crate::{BrailleArt, BrailleCanvas, Result, BRAILLE_OFFSET};
 use image::{DynamicImage, GenericImageView, Pixel};
 use itertools::Itertools;
 use std::convert::TryFrom;
-use crate::{BrailleArt, BRAILLE_OFFSET, BrailleCanvas};
-use crate::Result;
 
 #[derive(Copy, Clone, Debug)]
 pub enum BrailleArtMode {
@@ -17,11 +16,9 @@ impl Default for BrailleArtMode {
     }
 }
 
-
-
 pub fn region_braille<F>(x: u32, y: u32, f: F) -> u32
-    where
-        F: Fn((u32, u32)) -> Option<bool>,
+where
+    F: Fn((u32, u32)) -> Option<bool>,
 {
     let index = [(0, 0), (1, 0), (2, 0), (0, 1), (1, 1), (2, 1), (3, 0), (3, 1)]
         .iter()
@@ -31,8 +28,6 @@ pub fn region_braille<F>(x: u32, y: u32, f: F) -> u32
         .sum::<u32>();
     return BRAILLE_OFFSET + index;
 }
-
-
 
 fn sub_abs(a: u8, b: u8) -> u8 {
     if a > b { a - b } else { b - a }

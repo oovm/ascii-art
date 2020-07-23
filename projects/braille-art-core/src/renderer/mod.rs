@@ -1,14 +1,12 @@
-use crate::{BrailleCanvas, BrailleArt};
-use crate::renderer::mode::{region_braille};
-use image::{GenericImageView, DynamicImage};
-use crate::Result;
+use crate::{renderer::mode::region_braille, BrailleArt, BrailleCanvas, Result};
+use image::{DynamicImage, GenericImageView};
 
 mod mode;
 
 pub use mode::BrailleArtMode;
 
 impl BrailleArt {
-    pub fn render(&self, img: DynamicImage)-> Result<BrailleCanvas> {
+    pub fn render(&self, img: DynamicImage) -> Result<BrailleCanvas> {
         let img = image::open("tests/wolfram-wolf.png")?;
         let (width, height) = img.dimensions();
         let rl = BrailleArtMode::Border(20, 1);
@@ -35,5 +33,4 @@ impl BrailleArt {
     pub fn render_bytes() {
         unimplemented!()
     }
-
 }

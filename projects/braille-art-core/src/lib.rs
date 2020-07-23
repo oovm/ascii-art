@@ -1,11 +1,11 @@
 mod errors;
 pub use errors::{BrailleArtError, Result};
 
-mod renderer;
 mod canvas;
+mod renderer;
 
 pub use canvas::BrailleCanvas;
-pub use renderer::{BrailleArtMode};
+pub use renderer::BrailleArtMode;
 
 /// UTF8 of first (empty) braille character
 pub const BRAILLE_OFFSET: u32 = 0x2800;
@@ -14,7 +14,5 @@ pub const BRAILLE_OFFSET: u32 = 0x2800;
 pub struct BrailleArt {
     pub font_line: f32,
     pub font_space: f32,
-    pub mode :BrailleArtMode
+    pub mode: BrailleArtMode,
 }
-
-

@@ -2,6 +2,4 @@
 // mod save;
 
 #[derive(Debug, Clone)]
-pub struct BrailleCanvas {
-
-}
+pub struct BrailleCanvas {}
