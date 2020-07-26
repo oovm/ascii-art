@@ -11,7 +11,8 @@ impl Model {
                         <h1 class="subtitle is-1"> {"Subtitle 1"} </h1>
                     </div>
         </section>
-                    </main>
+        {self.image_upload_bottom()}
+        </main>
                 }
     }
 }

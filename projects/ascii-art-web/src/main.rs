@@ -1,4 +1,5 @@
 #![recursion_limit = "1024"]
+mod ascii_view;
 mod braille_view;
 mod global;
 
@@ -6,8 +7,12 @@ use crate::global::{GlobalSettings, Scene};
 use yew::{
     format::Json,
     html,
-    services::{storage::Area, StorageService},
-    Component, ComponentLink, Html, ShouldRender,
+    services::{
+        reader::{FileData, ReaderService, ReaderTask},
+        storage::Area,
+        StorageService,
+    },
+    ChangeData, Component, ComponentLink, Html, ShouldRender,
 };
 
 const KEY: &str = "ascii-art";
@@ -15,11 +20,14 @@ const KEY: &str = "ascii-art";
 #[derive(Debug)]
 pub enum Event {
     SwitchTo(Scene),
+    Files(ChangeData),
+    FilesLoaded(FileData),
 }
 
 pub struct Model {
     link: ComponentLink<Self>,
     storage: StorageService,
+    tasks: Vec<ReaderTask>,
     state: GlobalSettings,
 }
 
@@ -42,6 +50,16 @@ impl Component for Model {
                 self.state.scene = scene;
                 self.storage.store(KEY, Json(&self.state))
             }
+            Event::Files(ChangeData::Files(f)) => {
+                let task = ReaderService::new().read_file(f.get(0).unwrap(), self.link.callback(Event::Loaded)).unwrap();
+                self.tasks.push(task)
+            }
+            Event::FilesLoaded(data) => match self.state.scene {
+                Scene::AsciiArt => self.state.ascii_image = Some(data.content),
+                Scene::BrailleArt => self.state.braille_image = Some(data.content),
+                Scene::EmojiArt => self.state.emoji_image = Some(data.content),
+            },
+            _ => {}
         }
         true
     }
@@ -55,6 +73,7 @@ impl Component for Model {
             Scene::AsciiArt => html! {
             <>
                 {self.navbar_view()}
+                {self.ascii_view()}
             </>
             },
             Scene::BrailleArt => html! {
@@ -92,6 +111,10 @@ impl Model {
                     {self.switch_to_ascii()}
                     {self.switch_to_braille_art()}
                     {self.switch_to_emoji()}
+                    <iframe id="github-star"
+                        src="https://ghbtns.com/github-btn.html?user=GalAster&repo=ascii-art&type=star&count=true&size=large"
+                        frameborder="0" scrolling="0" width="120" height="50" title="GitHub" loading="lazy"
+                    />
                     </div>
                 </div>
             </div>
@@ -133,8 +156,26 @@ impl Model {
             <a class=class id="title"
                 onclick=self.link.callback(|_| Event::SwitchTo(Scene::BrailleArt))
             >
-            {"braille_view"}
+            {"BrailleArt"}
             </a>
+        }
+    }
+}
+
+impl Model {
+    pub fn image_upload_bottom(&self) -> Html {
+        html! {
+        <div class="field">
+            <div class="file is-info">
+                <label class="file-label">
+                    <input class="file-input" type="file" name="resume"/>
+                    <span class="file-cta">
+                      <span class="file-icon"><i class="fa fa-upload"></i></span>
+                      <span class="file-label">{"Choose a image…"}</span>
+                    </span>
+                </label>
+            </div>
+        </div>
         }
     }
 }
