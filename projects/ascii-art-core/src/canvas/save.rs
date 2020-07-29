@@ -6,5 +6,12 @@ impl AsciiCanvas {
         fs::write(path, self.draw_svg().as_bytes())?;
         Ok(())
     }
-    pub fn save_image(&self) {}
+    pub fn save_image(&self, path: impl AsRef<Path>) -> Result<()> {
+        let _ = path;
+        unimplemented!()
+    }
+    pub fn save_text(&self, path: impl AsRef<Path>) -> Result<()> {
+        let _ = path;
+        unimplemented!()
+    }
 }

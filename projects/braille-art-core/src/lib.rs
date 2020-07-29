@@ -16,3 +16,9 @@ pub struct BrailleArt {
     pub font_space: f32,
     pub mode: BrailleArtMode,
 }
+
+impl Default for BrailleArt {
+    fn default() -> Self {
+        Self { font_line: 16.0, font_space: 16.0, mode: Default::default() }
+    }
+}

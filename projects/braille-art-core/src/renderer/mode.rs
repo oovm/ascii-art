@@ -1,4 +1,4 @@
-use crate::{BrailleArt, BrailleCanvas, Result, BRAILLE_OFFSET};
+use crate::BRAILLE_OFFSET;
 use image::{DynamicImage, GenericImageView, Pixel};
 use itertools::Itertools;
 use std::convert::TryFrom;

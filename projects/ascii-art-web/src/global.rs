@@ -19,15 +19,12 @@ pub enum Scene {
 
 impl Debug for GlobalSettings {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        match self {
-            GlobalSettings { scene, ascii_image, braille_image, emoji_image } => f
-                .debug_struct("GlobalSettings")
-                .field("scene", scene)
-                .field("ascii_image", &format_image_size(ascii_image))
-                .field("braille_image", &format_image_size(braille_image))
-                .field("emoji_image", &format_image_size(emoji_image))
-                .finish(),
-        }
+        f.debug_struct("GlobalSettings")
+            .field("scene", &self.scene)
+            .field("ascii.image", &format_image_size(&self.ascii_image))
+            .field("braille.image", &format_image_size(&self.braille_image))
+            .field("emoji.image", &format_image_size(&self.emoji_image))
+            .finish()
     }
 }
 
@@ -46,8 +43,6 @@ impl Default for GlobalSettings {
         Self { scene: Scene::AsciiArt, ascii_image: None, braille_image: None, emoji_image: None }
     }
 }
-
-impl GlobalSettings {}
 
 fn format_image_size(img: &Option<DynamicImage>) -> String {
     match img {
