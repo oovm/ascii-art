@@ -1,5 +1,5 @@
 [package]
-name = "ascii-art-core"
+name = "ascii-art"
 version = "0.1.0"
 authors = ["Aster <192607617@qq.com>"]
 description = "..."
@@ -10,16 +10,10 @@ edition = "2018"
 
 [dependencies]
 image = "0.23"
-rand= "0.7"
-pix = "0.13"
-imageproc = "0.21"
-font-kit = "0.10"
-fontdue = "*"
-itertools = "*"
+fontdue = "0.4"
+itertools = "0.9"
 
 [dev-dependencies]
 
 [features]
 default = []
-web = []
-gpu = []

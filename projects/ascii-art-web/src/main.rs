@@ -3,14 +3,16 @@ mod ascii_view;
 mod braille_view;
 mod global;
 
-use crate::global::{GlobalSettings, Scene};
+pub use crate::global::{format_image_size, GlobalSettings, Scene};
+use image::{load_from_memory_with_format, DynamicImage, ImageFormat};
+use std::fmt::{self, Debug, Formatter};
 use yew::{
     format::Json,
     html,
     services::{
         reader::{FileData, ReaderService, ReaderTask},
         storage::Area,
-        StorageService,
+        DialogService, StorageService,
     },
     ChangeData, Component, ComponentLink, Html, ShouldRender,
 };
@@ -29,6 +31,21 @@ pub struct Model {
     storage: StorageService,
     tasks: Vec<ReaderTask>,
     state: GlobalSettings,
+    ascii_image: Option<DynamicImage>,
+    braille_image: Option<DynamicImage>,
+    emoji_image: Option<DynamicImage>,
+}
+
+impl Debug for Model {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        f.debug_struct("GlobalSettings")
+            .field("scene", &self.state)
+            .field("tasks", &self.tasks)
+            .field("ascii.image", &format_image_size(&self.ascii_image))
+            .field("braille.image", &format_image_size(&self.braille_image))
+            .field("emoji.image", &format_image_size(&self.emoji_image))
+            .finish()
+    }
 }
 
 impl Component for Model {
@@ -41,7 +58,7 @@ impl Component for Model {
             Json(Ok(state)) => state,
             _ => GlobalSettings::default(),
         };
-        Self { link, storage, state }
+        Self { link, storage, tasks: vec![], state, ascii_image: None, braille_image: None, emoji_image: None }
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
@@ -51,14 +68,23 @@ impl Component for Model {
                 self.storage.store(KEY, Json(&self.state))
             }
             Event::Files(ChangeData::Files(f)) => {
-                let task = ReaderService::new().read_file(f.get(0).unwrap(), self.link.callback(Event::Loaded)).unwrap();
+                let task = ReaderService::new().read_file(f.get(0).unwrap(), self.link.callback(Event::FilesLoaded)).unwrap();
                 self.tasks.push(task)
             }
-            Event::FilesLoaded(data) => match self.state.scene {
-                Scene::AsciiArt => self.state.ascii_image = Some(data.content),
-                Scene::BrailleArt => self.state.braille_image = Some(data.content),
-                Scene::EmojiArt => self.state.emoji_image = Some(data.content),
-            },
+            Event::FilesLoaded(data) => {
+                let img = match load_from_memory_with_format(&data.content, ImageFormat::Png) {
+                    Ok(o) => o,
+                    Err(e) => {
+                        DialogService::alert(&format!("{}", e));
+                        return false;
+                    }
+                };
+                match self.state.scene {
+                    Scene::AsciiArt => self.ascii_image = Some(img),
+                    Scene::BrailleArt => self.braille_image = Some(img),
+                    Scene::EmojiArt => self.emoji_image = Some(img),
+                }
+            }
             _ => {}
         }
         true
@@ -168,7 +194,9 @@ impl Model {
         <div class="field">
             <div class="file is-info">
                 <label class="file-label">
-                    <input class="file-input" type="file" name="resume"/>
+                    <input class="file-input" type="file" multiple=true
+                        onchange=self.link.callback(|input: ChangeData| Event::Files(input))
+                    />
                     <span class="file-cta">
                       <span class="file-icon"><i class="fa fa-upload"></i></span>
                       <span class="file-label">{"Choose a image…"}</span>

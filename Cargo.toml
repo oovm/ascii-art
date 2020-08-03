@@ -2,7 +2,6 @@
 members = ["projects/*"]
 default-members = [
     "projects/ascii-art-core",
-    "projects/ascii-art-cli",
     "projects/ascii-art-web",
     "projects/braille-art-core",
 ]

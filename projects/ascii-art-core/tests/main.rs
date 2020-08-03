@@ -1,4 +1,4 @@
-use ascii_art_core::{AsciiArt, AsciiData, AsciiSet};
+use ascii_art::{AsciiArt, AsciiData, AsciiSet};
 use fontdue::{
     layout::{CoordinateSystem, Layout, LayoutSettings, TextStyle},
     Font, FontSettings,
