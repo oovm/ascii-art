@@ -52,7 +52,7 @@ impl Component for Model {
     type Message = Event;
     type Properties = ();
 
-    fn create(_props: Self::Properties, link: ComponentLink<Self>) -> Self {
+    fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
         let storage = StorageService::new(Area::Local).expect("storage was disabled by the user");
         let state = match storage.restore(KEY) {
             Json(Ok(state)) => state,
